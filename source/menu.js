@@ -121,19 +121,29 @@ module.exports = function (opts = {}) {
 	}
 
 	function renderMenu () {
-		if (opts.render === 'category') {
-			if (this.document.projectId && this.document.categoryId) {
-				return renderCollection(
-					this.getCategory(this.document.projectId, this.document.categoryId).collection
-				)
+		try {
+			if (opts.render === 'category') {
+				if (this.document.projectId && this.document.categoryId) {
+					return renderCollection(
+						this.getCategory(this.document.projectId, this.document.categoryId).collection
+					)
+				}
+				throw new Error('category menu could not be rendered as there was no category set for this document')
 			}
-			throw new Error('category menu could not be rendered as there was no category set for this document')
+			else if (opts.render === 'projects') {
+				return renderProjects()
+			}
+			else {
+				throw new Error('opts.render was an invalid value, must be either "category" or "projects"')
+			}
 		}
-		else if (opts.render === 'projects') {
-			return renderProjects()
-		}
-		else {
-			throw new Error('opts.render was an invalid value, must be either "category" or "projects"')
+		catch (err) {
+			throw new Error(
+				'an error occured rendering the menu' +
+				'\nhere are the projects: ' + require('util').inspect(this.getProjects()) +
+				'\nhere was the error message: ' + err.message +
+				'\nhere was the error stack:\n' + err.stack
+			)
 		}
 	}
 

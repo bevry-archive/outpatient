@@ -1,5 +1,8 @@
 # History
 
+## v2.0.2 2017 March 20
+- Added some more menu error debugging information to address https://travis-ci.org/bevry/learn/builds/212830485
+
 ## v2.0.1 2017 March 20
 - Add core-js to provide Object.values
 - Add babel compilation and the appropriate edition for it
