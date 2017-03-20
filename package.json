@@ -1,6 +1,6 @@
 {
   "name": "outpatient",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "description": "helpers for bevry websites",
   "homepage": "https://github.com/bevry/outpatient",
   "license": "MIT",
@@ -39,10 +39,10 @@
   },
   "author": "2017+ Bevry Pty Ltd <us@bevry.me> (http://bevry.me)",
   "maintainers": [
-    "Benjamin Lupton <b@lupton.cc> (https://github.com/balupton)"
+    "Benjamin Lupton <b@lupton.cc> (http://balupton.com)"
   ],
   "contributors": [
-    "Benjamin Lupton <b@lupton.cc> (https://github.com/balupton)"
+    "Benjamin Lupton <b@lupton.cc> (http://balupton.com)"
   ],
   "bugs": {
     "url": "https://github.com/bevry/outpatient/issues"
