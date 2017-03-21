@@ -10,10 +10,6 @@ sudo: false
 # https://github.com/balupton/awesome-travis#complete-nodejs-version-matrix
 language: node_js
 node_js:
-  - "0.8"   # end of life
-  - "0.10"  # end of life
-  - "0.12"  # maintenance
-  - "4"     # lts
   - "6"     # lts
   - "7"     # stable
 matrix:
