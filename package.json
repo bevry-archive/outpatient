@@ -1,6 +1,6 @@
 {
   "name": "outpatient",
-  "version": "2.0.2",
+  "version": "2.1.0",
   "description": "helpers for bevry websites",
   "homepage": "https://github.com/bevry/outpatient",
   "license": "MIT",
@@ -107,7 +107,7 @@
     "editions": "^1.3.3",
     "extendr": "^3.2.2",
     "hyperscript": "^2.0.2",
-    "moment": "^2.17.1",
+    "moment": "^2.18.0",
     "underscore.string": "^3.3.4"
   },
   "devDependencies": {

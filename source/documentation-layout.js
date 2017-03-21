@@ -18,7 +18,9 @@ module.exports = function (opts = {}) {
 	const prevModel = project.collection.models[pageIndex - 1] || null
 	const nextModel = project.collection.models[pageIndex + 1] || null
 
-	const parents = [docs, project, category]
+	const parents = (docs.url !== project.url && docs.title)
+		? [docs].concat([project, category])
+		: [project, category]
 	const up = category
 	const prev = prevModel && {
 		url: prevModel.attributes.url,
