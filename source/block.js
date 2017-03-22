@@ -10,12 +10,12 @@ module.exports = function (opts = {}) {
 		heading = document.title,
 		subheading = document.subheading,
 		author = document.author,
-		date,
 		cssClasses = (document.cssClasses || []),
+		editUrl = document.editUrl,
+		date,
 		prev,
 		next,
 		up,
-		editUrl,
 		parents = []
 	} = opts
 

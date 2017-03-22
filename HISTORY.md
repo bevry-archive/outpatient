@@ -1,5 +1,8 @@
 # History
 
+## v2.1.1 2017 March 22
+- Fix edit links not showing
+
 ## v2.1.0 2017 March 21
 - Don't render docs crumb if it is the same as project or has no title
 
