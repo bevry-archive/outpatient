@@ -199,11 +199,11 @@ module.exports = function ({ config, docpadConfig }) {
 			// Prepare
 			const a = document.attributes
 
-			// learn/#{organisation}/#{project}/#{category}/#{filename}
+			// learn/#{organisation}-${repo}/#{project}/#{category}/#{filename}
 			const pathDetailsRegexString = `
 			^
 			.*?learn/
-			(.+?)/        // organisation
+			(.+?)-(.+?)/  // organisation - repo
 			(.+?)/        // project
 			(.+?)/        // category
 			(.+?)\\.      // basename
@@ -218,22 +218,22 @@ module.exports = function ({ config, docpadConfig }) {
 
 			// Check if we are correctly structured
 			if (pathDetails != null) {
-				const organisationDirectory = pathDetails[1]
-				const projectDirectory = pathDetails[2]
-				const categoryDirectory = pathDetails[3]
-				const basename = pathDetails[4]
+				const projectDirectory = pathDetails[3]
+				const categoryDirectory = pathDetails[4]
+				const basename = pathDetails[5]
+				const extension = pathDetails[6]
 
-				// const organisation = organisationDirectory.replace(/[-0-9]+/, '')
-				const projectId = projectDirectory.replace(/[-0-9]+/, '')
+				// const organisation = organisationDirectory.replace(/^[-0-9]+/, '')
+				const projectId = projectDirectory.replace(/^[-0-9]+/, '')
 				const categoryId = categoryDirectory.replace(/^[-0-9]+/, '')
 
 				const name = basename.replace(/^[-0-9]+/, '')
 
 				const title = a.title || humanize(name)
 
-				const githubEditUrl = `https://github.com/${organisationDirectory}/${projectDirectory}/edit/master/`
-				// const proseEditUrl = `http://prose.io/#${organisationDirectory}/${projectDirectory}/edit/master/`
-				const editUrl = githubEditUrl + a.relativePath.replace(`learn/${organisationDirectory}/${projectDirectory}/`, '')
+				const githubEditUrl = config.projects[projectId].editUrl + categoryDirectory + '/' + basename + '.' + extension
+				// const proseEditUrl = githubEditUrl.replace('github.com', 'prose.io')
+				const editUrl = githubEditUrl
 
 				// Indexes
 				console.log(`add project [${projectId}] category [${categoryId}]`)

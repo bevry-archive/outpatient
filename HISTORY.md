@@ -1,5 +1,8 @@
 # History
 
+## v3.0.0 2017 March 22
+- `src/learn/organisation/project` -> `src/learn/organisation-repo/project`
+
 ## v2.1.1 2017 March 22
 - Fix edit links not showing
 
