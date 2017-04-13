@@ -87,7 +87,7 @@ function renderMenu (...args) {
 function renderGoogleSearch () {
 	if (!this.services || !this.services.googleSearch ) return ''
 	return (
-		`<script async src="//www.google.com/cse/cse.js?cx=${this.services.googleSearch}"></script>` +
+		`<script async src="//cse.google.com/cse/cse.js?cx=${this.services.googleSearch}"></script>` +
 		'<div class="search"><gcse:search></gcse:search></div>'
 	)
 }
