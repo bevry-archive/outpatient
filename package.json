@@ -82,13 +82,30 @@
     }
   ],
   "main": "index.js",
+  "dependencies": {
+    "core-js": "^2.4.1",
+    "editions": "^1.3.3",
+    "extendr": "^3.2.2",
+    "hyperscript": "^2.0.2",
+    "moment": "^2.18.0",
+    "underscore.string": "^3.3.4"
+  },
+  "devDependencies": {
+    "assert-helpers": "^4.5.0",
+    "babel-cli": "^6.24.1",
+    "babel-preset-es2015": "^6.24.1",
+    "eslint": "^3.19.0",
+    "joe": "^2.0.2",
+    "joe-reporter-console": "^2.0.1",
+    "projectz": "^1.4.0"
+  },
   "scripts": {
-    "our:setup": "npm install",
-    "our:clean": "rm -Rf ./docs ./es2015 ./out",
+    "our:setup": "npm run our:setup:npm",
+    "our:setup:npm": "npm install",
+    "our:clean": "rm -Rf ./docs ./es2015 ./es5 ./out",
     "our:compile": "npm run our:compile:es2015",
     "our:compile:es2015": "babel ./source --out-dir ./es2015 --presets es2015",
-    "our:meta": "npm run our:meta:docs && npm run our:meta:projectz",
-    "our:meta:docs": "echo 'no docs currently'",
+    "our:meta": "npm run our:meta:projectz",
     "our:meta:projectz": "projectz compile",
     "our:verify": "npm run our:verify:eslint",
     "our:verify:eslint": "eslint --fix ./source",
@@ -101,19 +118,5 @@
     "our:release:tag": "export MESSAGE=$(cat ./HISTORY.md | sed -n \"/## v$npm_package_version/,/##/p\" | sed 's/## //' | awk 'NR>1{print buf}{buf = $0}') && test \"$MESSAGE\" || (echo 'proper changelog entry not found' && exit -1) && git tag v$npm_package_version -am \"$MESSAGE\"",
     "our:release:push": "git push origin master && git push origin --tags",
     "test": "node --harmony ./test.js --joe-reporter=console"
-  },
-  "dependencies": {
-    "core-js": "^2.4.1",
-    "editions": "^1.3.3",
-    "extendr": "^3.2.2",
-    "hyperscript": "^2.0.2",
-    "moment": "^2.18.0",
-    "underscore.string": "^3.3.4"
-  },
-  "devDependencies": {
-    "babel-cli": "^6.24.0",
-    "babel-preset-es2015": "^6.24.0",
-    "eslint": "^3.18.0",
-    "projectz": "^1.3.2"
   }
 }

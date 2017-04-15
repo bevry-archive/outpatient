@@ -1,106 +1,23 @@
-# 2017 February 24
-# https://github.com/bevry/base
-
-
-# Use the latest travis infrastructure
 sudo: false
-
-
-# Complete Node.js Version Matrix
-# https://github.com/balupton/awesome-travis#complete-nodejs-version-matrix
 language: node_js
 node_js:
-  - "6"     # lts
-  - "7"     # stable
+- '6'
+- '7'
 matrix:
   fast_finish: true
-  allow_failures:
-    - node_js: "0.8"
-    - node_js: "0.10"
 cache:
   directories:
-    - $HOME/.npm  # npm's cache
-
-
-install: |
-  # Ensure NPM is latest
-  # https://github.com/balupton/awesome-travis#ensure-npm-is-latest
-  export CURRENT_NPM_VERSION="$(npm --version)"
-  export LATEST_NPM_VERSION="$(npm view npm version)"
-  if test "$CURRENT_NPM_VERSION" != "$LATEST_NPM_VERSION"; then
-    echo "running an old npm version, upgrading npm..."
-    npm install npm --global --cache-min=Infinity
-    echo "...npm upgrade complete"
-  fi
-
-  # Ensure dependencies install with a LTS node version
-  # https://github.com/balupton/awesome-travis#use-lts-node-version-for-preparation
-  export CURRENT_NODE_VERSION="$(node --version)"
-  export LTS_NODE_VERSIONS="$(nvm ls-remote --lts)"
-  if echo "$LTS_NODE_VERSIONS" | grep "$CURRENT_NODE_VERSION"; then
-    echo "running on a LTS node version, completing setup..."
-    npm run our:setup
-    echo "...setup complete with current LTS version"
-  else
-    echo "running on a non-LTS node version, completing setup on a LTS node version..."
-    nvm install --lts
-    export LTS_NODE_INSTALLED_VERSION="$(node --version)"
-    npm run our:setup
-    nvm use "$TRAVIS_NODE_VERSION"
-    echo "...setup complete with LTS"
-  fi
-
-before_script: |
-  # Ensure compilation and linting occur on a LTS node version
-  # https://github.com/balupton/awesome-travis#use-lts-node-version-for-preparation
-  if test "$LTS_NODE_INSTALLED_VERSION"; then
-    echo "running on a non-LTS node version, compiling with LTS, skipping linting..."
-    nvm use "$LTS_NODE_INSTALLED_VERSION"
-    npm run our:compile
-    nvm use "$TRAVIS_NODE_VERSION"
-    echo "...compiled"
-  else
-    echo "running on a LTS node version, compiling and linting..."
-    npm run our:compile && npm run our:verify
-    echo "...compiled and linted"
-  fi
-
-after_success: |
-  # Release to NPM
-  # https://github.com/balupton/awesome-travis#release-to-npm
-  export CURRENT_NODE_VERSION="$(node --version)"
-  export LTS_NODE_LATEST_VERSION="$(nvm version-remote --lts)"
-  if test "$CURRENT_NODE_VERSION" = "$LTS_NODE_LATEST_VERSION"; then
-    if test "$TRAVIS_TAG"; then
-      echo "logging in..."
-      echo -e "$NPM_USERNAME\n$NPM_PASSWORD\n$NPM_EMAIL" | npm login
-      echo "publishing..."
-      npm publish
-      echo "...released to npm"
-    else
-      echo "non-tag, no need for release"
-    fi
-  else
-    echo "running on non-latest LTS node version, skipping release to npm"
-  fi
-
-# ========================================
-# Custom Configuration
-# https://github.com/bevry/base#configuration
-
-env:
-  global:
-  # Release to NPM
-  # https://github.com/balupton/awesome-travis#release-to-npm
-  - secure: DR5SOQGV1WRfIkgXPM0+KlrZBgitkr2Iz0rrjeIK8J15wHDXrX/eSdL9PxfqtrQLFnqk7jMoALwGgqxZe6ixHr1ruBdpigmnH2069cbOcE3WiVopdKs35szmcoXlUJA/OWGCX513FeePq2JHJ9C8EVEChHqu9S+8vZ9ZB7gYo8L09R2pNfGAbEIcTr3Ce6Y2+3aBcM9ldfKytCgZAKzp3HqIYguDQRxzBYk9XSD1CxEnkQF6PCfWg47kaKzoSvyK8corIT+opz2p4UDJPLhI45DKmdZPp/Ms6JBpjfUWqtEi6q5wwHEWSKoE7vD6in7q9Vus0zGGWw6p9K3dwKPgqdwlkOK+x5ErE3UHjubrnUn5fQ5NATTLcYyCZMEtzfleh8PGdmv+zkqhgzM5MG9P1X0lWbMWb8HuMRqkylr20tKkoge2awuSJ9FgOgDYBpjECesBay/GqzOv5QSSBvaE50cgx2HBbrDlVtEuSqWV25pdbYgXfkWNO6D8ZPr7d4wI3++PLvuFi0tInnpy2BKUL0Y5S37EtgE/g1lJS/5TAQcJ5q22p+8oHq8VxtUDgddqQ01idzQOgstLp1AhYZ9bAYAVhf+9RKE6fxeW525LwJ31RuZB53ILPa2i2x9LJn3YPdjCBfewYj0WjNL8w4Vb4QNzX9guzfBSV/rpNhprN/M=
-  - secure: YHdNiNwY5oa62/fAT669NKQN72yhNjvhAZ/wBoB4Qwo0Onwgl9h97bW5Tq2qSBmPMZCjA4nbk3/P3Ij/wP1ecWjKhdIjJZyMjToS14G/3J6fFo5cB+bYAVge1yUseVKdIYLhrSJK8UktSprrd8Iw0D40YF7d7/flJm/t6i4d9uRuBnADJ1GUvQoR75lK0Ad/hT6GlBNAe+37zhstOdcKieDCpq84cFY7gT6Bs1kCxDSXjB8EsLJqtpGUtAOJdaw18URNaZn38YbCRVcYEjXNDNXz/U9DzOH7eUSTdDcnRRCkg8tFpRVpHnTxHpHmfaCFiSQwH17D9/B1rMsQkkYqhnlNl3/AEQw08Evst+sU/XUdTcWIURrizhcCj9y+0aaZbKkcAL2ddkParkRJTfN9LwTo03K8u1YhVki346cY1zmLu6eCrmZy+rGAWVu7LBSF9W7xO/F7CuqYI0u8Y8e34TaR00asHegATxzc5+Nj0HRa5uEgKreHPIdvXdXbmFjEzqjnmyrR2r7iDZ9R75mhdP5KkjTB1Zk3xoICV+mNcRx52Jla5apZkrvvyoduYNUz1Wzj6Gb0NQpy7bn/q0MO9rqMFqLCBW6k7sz2vKrh6cshTwzerX8W3FGexds0cGnb0p1+nbmB6bX2HSLr72+TSjlZMzEvKLQPqT2fVpI1Tt0=
-  - secure: Krfzl8Lx/+NWyokwGLmCDcS2YZa5n1HLgCt0IJVvGyFCmWRW0Hr39EdWrYO/hXHAvXCNykgI4rT2U/ffzLkbo6SJK26Vj6TaBttJboFeoVSxIC8M19ndihsNomAAPsXvKaCDTupKYiKzYdwiiYy7yl51jiriZI80ah1nneFDKclAzPK+qm6CzuDbUU0/zx7ev+T5UqfDysT+QzmY3qk94wDOKTHw5SONN+3eYJ28TkJ0FiP+uX0K+8Ga5naA8dY0WZLPyOezI9VWb6QvoqJV09Ugdi4VVs4bVMNzhQa59Hws48a3/SMacmsm/7iNSvX5o860E4fFwG4bVApfwwOMhXjvp7W6MNdmNklasOtgPKyaGC9hJ74Zo//HPgVrdzPrK2mBFojJmozRFZuDASkMoIj5lyqzXHdKqtNCZxvH7IAEGYbY1rH3N+oOWhceTpsDVACeLVy4rbuyqfC/bG/Sf1PSdRYOnpuNClzORoSmc/F5qaUaPFrYlxqfJ9wAt1VCUcEHC3g6uumAsH1p5829OksOWUt+b5Q/d0ycG5SBDLvJ3G2x7Hii0YOvTLqKzL2efpL3dTe5V+U4XdhfrpYJoZbRZfeUKy2bC6d2QEnbiS08T0FAquhKJroq7v9/w2v9z8FASkqzp7VX2SmGkZ9nnaTaEuX/ZTr6VYSsoEIqnaE=
-
-# https://github.com/balupton/awesome-travis#slack
-# https://github.com/balupton/awesome-travis#email
+  - "$HOME/.npm"
+  - "$HOME/.yarn-cache"
+install:
+- eval "$(curl -s https://raw.githubusercontent.com/balupton/awesome-travis/master/scripts/node-install.bash)"
+before_script:
+- eval "$(curl -s https://raw.githubusercontent.com/balupton/awesome-travis/master/scripts/node-verify.bash)"
+after_success:
+- eval "$(curl -s https://raw.githubusercontent.com/balupton/awesome-travis/master/scripts/node-publish.bash)"
 notifications:
   slack:
-    secure: IfIvuupaS8URGouDQDpTauWSGM92mbG59LMDoKEmLm8QoTDnP9JmlHx5J9IehuMZeAQcVSsp87y3D+eIlMmEJqKbMZdeCR5odKiyAwDnoE+mHCI+uftZ2ksGjlzkQPzKfN78/TvkH15xYn106L+svWll6DPh63AYWQ0TYcFlzRykHnGjjjGbZtL7wlOijvcvjShqXHRrnNkN0MtlAwMml2QdLVQe6Ol1UwJOy7i+ZlvDBhwHBbilcrNbu0nmwd2pJZ6qeLWeij/IhEuKrjgi0aImIeNrYD0CTTtEDm/xmzvf8YhSb/IPrBSqVyxPR80JUV+8yLjGxEt8bZZ5OLn4SoLC9zsjpPlwmK+al2Q3i4x2bnaOru8mqn9jvepbtOoSbDxfKkumLJh/n8ckarS2hZ3oyWKIeR3U/CKapMgiWLjo4+KYtIRqQq/w9CapSD4iEJtI8BldxXcU6xJm9fkg2kYBsSS/3ch1631uV4ZbYYuXvVhP/uJDM0wh/zaDluDiDRzolxtUgJj/fNYZPi8CZQzs+aF5/fICQ/neecOqlnIvCbpxIaDoQ6VMEF31pUgAp8Xk2K+XZseY076IULVkxI7MHda5471f70Pkt2k87yHxfwXgAH44/pBDOBWlrFofNAD84Awogi2wKbcMNmgXvKRBXm+kzDum6Rvc8b8MI8E=
+    secure: PAKu2TOy3lAfvweEW7vRM+hJTXacHkymsT/f3D59PbaZSsMUoPTuoHSZFZ8w+eyyTm8wr8IWZoja52IRIEZP/0SMSfhdw22uuedR+5k7Y9YtijbEtlH1Lu/3Cm1SUg9YRiX8iN1g4Q10ss8vcOdAviEhTnNUwqedCxvYWAbIagOSJuTXWl47iFJfVKDPyNwE0UKa/ytjJWM3Wuf9xjkmCCSTuH/lL6QSa8YM7s5grnBAVG0zQNPloWhwdZ15895hl6zfhhrOpD5MmpWSfsaucPNb2F5HQcUx4JJUPhv0/bweKS+ii0DEHpi+yj/nYVKvl5z5b53CYQ9zz+g1+wXXVJZ5cRRbkiep9xUPuDw6pYrMrSrw1u7vfiVBg/Nc/OwrLxoF4CG/oYLZfx2mN4CzTdVGFbz3CsS55Z/F1R5MxM0RN3yjh3OWmUcNIBK7T5htEqPBEvihKAiAmxRxGSqqFkelyTj2LTKF0biTmvH4K0Bm699krNDKEy0fSD7iXDM/xojtO4+Y9C5tG4CJoyUsAl+loYz5Rv2F6M1/3idMKEmN1fL7Nk1pKFklONkpqaUow8TdlbZbrZfvUwhBe3JemYWjxhhQkiq5DFO+irGPB0+n0S1SX3L7h9tWqwxTedyT9N0oAKfoKvnx+5Rgs6H4mseHatG4kkQ8rI8bnbxPV4I=
   email:
     recipients:
-      secure: dy5Ua2VfXyIA/Q32FBcAPwOqSVZzXNcHwOsyMZZZ6VDJfLkpf0N3RH+p1I9SKK4ZzdK70XnaTfUlVWdJ4ow3qSJcv2E/FlUNpKli3zXmVDVT8vzc+p+CPETufked/+c4x8SXOBtmfqJWnE4vMV5EauSieI76rX1cBSNt95tSok8Tvz7NC0zHV5yzj+ZGM3dmeS8/P5nquA5B8nkXnALiy7TieClMFdUM8v63YD1NOR6YH78SbY8Ea08TLaxzXmBnlCkZYjc3rhFitbcwiHbyJPX9nzUwi1Y92pAwsUOiyRbA8fl6ue7u+8dUg2AJoe1vMrTuEcCXRKEGFw65iHq+o/oMFW/z4cXWeI3NrBA/+r+ZM8G5g80CQw+stuziUnCovQXL3hE1mwrfmUf6Vkg/MFSEKXDhaL1mLmwIQgRCVYBctVtdnN1iC2PyJf49a8ve7Y4zJGDA9YC3JkM5QjOIMa8bypt1i5pMdE2XoxcvPDXC0b96p6uql/cNkVIj1HNPOk9B1tp5PFm98Xg8Br9akXL7YtM9VGWFo76wfcjbjp9Q8poO7XfMguLJe1IgVl8lQFzxHEnq7TxFa9TaaTqjXn2JSJ0jzAdwiPR9M5y+F0pP6X63snwnBZUt5Z3qe5V4Cmj1kij/buNlrqQw1dpISIod5FIHx5AwtyqxWM6/Kz8=
+      secure: cBZKK4ol7uhiT3APoO6YEjLTdJXoESYnGwGaLHzCGx+h9rEf/YZG2KzCvUEvrvVxLfXXp37zDFQMTX+8X+r8YvLPe9379pOv8dfVeqpVBwMdOqN4KL9wSUaBy+Sj3nEyhrMwJeYpmRwXdkluTp62+RbY+NmVFav9hWjE8sXJ6NCtXIyP151zD+k+md/pu/wWYFARXBID1ZeIXQ5Dg8VAzm2Ied6FFx190o3IB36AAE/0Au939E8Y/br46ncebxDuw52rQCHkt4QIpr4jf3hU5CkGsxEZP49eacDrg8jHEjRM0zBgpo0UhuH9sT5u7rf1SkMKN18bFTHkPTDLGiri85uA5B6TA+8/HRGaRfx1SHJQgq433KeXFYrLEqhQYel3a4uvy5DKBteJVMrbOpejml3ihyOO7dL4a+mcegRffqIA/Pmro8+3f+fnqg/3n0pppaofp3QA2SJblxlEvSRXk2cRc7XxPOMBa1WMCKJKnBugxMSdENT05pk1tbabhZGnUjHVU3ROaKNene9fgxROLjbpmGSEG5aOYCwGtDG2H+Gg/rOnlxBnBNVCDHXx+/777hMKvEBHmMXJ1ZF7akydoK+LHD3kk7Ku/mpTYX57p5HUyJv1U+78mYPHBqFNwGqpPj+j46AG2qVG2dzdi2tC1qV94QrkV+r7gOtMMAJKrtM=
