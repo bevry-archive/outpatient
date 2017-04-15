@@ -1,5 +1,8 @@
 # History
 
+## v3.1.0 2017 April 15
+- Ability to customise the edit link text via `text.edit` template data
+
 ## v3.0.0 2017 March 22
 - `src/learn/organisation/project` -> `src/learn/organisation-repo/project`
 

@@ -4,7 +4,7 @@ const h = require('hyperscript')
 
 module.exports = function (opts = {}) {
 	// Prepare
-	const { document, content } = this
+	const { document, content, text = {} } = this
 	const {
 		permalink = document.url,
 		heading = document.title,
@@ -53,7 +53,7 @@ module.exports = function (opts = {}) {
 			)
 		)),
 		(editUrl || null) && h('aside.block-edit',
-			h('a', { href: editUrl }, 'Edit and improve this page!')
+			h('a', { href: editUrl }, text.edit || 'Edit and improve this page!')
 		)
 	)
 }
