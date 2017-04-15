@@ -1,5 +1,8 @@
 # History
 
+## v3.2.0 2017 April 15
+- Updated base files
+
 ## v3.1.0 2017 April 15
 - Ability to customise the edit link text via `text.edit` template data
 
