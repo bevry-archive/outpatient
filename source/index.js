@@ -5,6 +5,7 @@ const fsUtil = require('fs')
 const pathUtil = require('path')
 const strUtil = require('underscore.string')
 const extendr = require('extendr')
+const naturalCompare = require('string-natural-compare')
 
 
 // ---------------------------------
@@ -17,6 +18,18 @@ function humanize (text = '') {
 	)
 }
 
+// Natural Sort Item
+function naturalSort (a, b) {
+	console.log({a: a.directory, b: b.directory})
+	return naturalCompare.caseInsensitive(a.directory, b.directory)
+}
+function resort (group) {
+	const resort = {}
+	Object.values(group).sort(naturalSort).forEach(function (item) {
+		resort[item.id] = item
+	})
+	return resort
+}
 
 // ---------------------------------
 // Helpers
@@ -94,7 +107,7 @@ function renderGoogleSearch () {
 
 // Export
 module.exports = function ({ config, docpadConfig }) {
-	let projects = {} /* {
+	/* {
 		project: {
 			directory: '',
 			categories: {
@@ -104,6 +117,7 @@ module.exports = function ({ config, docpadConfig }) {
 			}
 		}
 	} */
+	let projects = {}
 
 	// Text
 	function getText (a, b, force = true) {
@@ -151,6 +165,20 @@ module.exports = function ({ config, docpadConfig }) {
 		}
 		return category
 	}
+	function addProject (project) {
+		if (config.projects[project.id] && config.projects[project.id].title) {
+			project.title = config.projects[project.id].title
+		}
+		projects[project.id] = project
+		projects = resort(projects)
+	}
+	function addCategory (category) {
+		if (config.projects[category.projectId] && config.projects[category.projectId].categories && config.projects[category.projectId].categories[category.id] && config.projects[category.projectId].categories[category.id].title) {
+			category.title = config.projects[category.projectId].categories[category.id].title
+		}
+		projects[category.projectId].categories[category.id] = category
+		projects[category.projectId].categories = resort(projects[category.projectId].categories)
+	}
 
 	// Fetch all documents that exist within the docs directory
 	// And give them the following meta data based on their file structure
@@ -163,26 +191,23 @@ module.exports = function ({ config, docpadConfig }) {
 	function generateBefore () {
 		const docpad = this.docpad
 		const docs = docpad.getCollection('docs')
-		const resort = {}
-		Object.values(projects).sort((a, b) => a.directory > b.directory).forEach((project) => {
-			resort[project.id] = project
+		Object.values(projects).forEach((project) => {
 			if (project.collection == null) {
 				project.collection = docs.findAllLive({
 					projectId: project.id
 				}, sort)
 			}
 			docpad.setCollection(`docs-${project.id}`, project.collection)
-			Object.values(project.categories).sort((a, b) => a.directory > b.directory).forEach((category) => {
-				resort[project.id].categories[category.id] = category
-				if (category.collection == null) {
-					category.collection = project.collection.findAllLive({
-						categoryId: category.id
-					}, sort)
-				}
+			Object.values(project.categories).forEach((category) => {
+				category.collection = project.collection.findAllLive({
+					categoryId: category.id
+				}, sort)
 				docpad.setCollection(`docs-${project.id}-${category.id}`, category.collection)
 			})
 		})
-		projects = extendr.deep(resort, config.projects)
+		Object.keys(projects).forEach(function (key) {
+			console.log(key, '=>', Object.keys(projects[key].categories))
+		})
 	}
 	function docsCollection (database) {
 		const query = {
@@ -238,22 +263,22 @@ module.exports = function ({ config, docpadConfig }) {
 				// Indexes
 				console.log(`add project [${projectId}] category [${categoryId}]`)
 				if (projects[projectId] == null) {
-					projects[projectId] = {
+					addProject({
 						id: projectId,
 						title: humanize(projectId),
 						url: `${config.docs.url}#${projectId}`,
 						directory: projectDirectory,
 						categories: {}
-					}
+					})
 				}
 				if (projects[projectId].categories[categoryId] == null) {
-					projects[projectId].categories[categoryId] = {
+					addCategory({
 						projectId,
 						id: categoryId,
 						title: humanize(categoryId),
 						url: `${config.docs.url}#${projectId}-${categoryId}`,
 						directory: categoryDirectory
-					}
+					})
 				}
 
 				// Apply
